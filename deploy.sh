@@ -126,7 +126,21 @@ cmd_hot_reload() {
     log "Contenedor activo: ${CONTAINER:0:12}"
     echo ""
 
-    # Copiar directorios
+    # ── PASO 1: Matar Node ANTES de copiar para liberar locks de archivo ────────
+    log "Deteniendo proceso Node.js para liberar locks de archivo..."
+    docker exec "$CONTAINER" sh -c "
+        PID=\$(pgrep -f 'node app.js' | head -1)
+        if [ -n \"\$PID\" ]; then
+            kill \$PID
+            echo '  → Proceso Node (PID '\$PID') terminado.'
+            sleep 1
+        else
+            echo '  → No se encontró proceso Node activo (puede estar en restart loop).'
+        fi
+    "
+    echo ""
+
+    # ── PASO 2: Copiar directorios (nunca tienen lock de proceso) ───────────────
     for dir in $HOT_DIRS; do
         if [ -d "$dir" ]; then
             log "Copiando directorio: ${YELLOW}$dir/${NC}"
@@ -135,30 +149,23 @@ cmd_hot_reload() {
         fi
     done
 
-    # Copiar archivos sueltos
+    # ── PASO 3: Copiar archivos sueltos vía tmp → mv (operación atómica) ───────
+    # Evita "device or resource busy" en el entry-point (app.js) y similares.
+    echo ""
     for file in $HOT_FILES; do
         if [ -f "$file" ]; then
+            TMP_DEST="$CONTAINER_WORKDIR/${file}.deploy_tmp"
+            FINAL_DEST="$CONTAINER_WORKDIR/$file"
             log "Copiando archivo: ${YELLOW}$file${NC}"
-            docker cp "$file" "$CONTAINER:$CONTAINER_WORKDIR/$file"
+            docker cp "$file" "$CONTAINER:$TMP_DEST"
+            docker exec "$CONTAINER" sh -c "mv '$TMP_DEST' '$FINAL_DEST'"
             ok "$file"
         fi
     done
 
+    # ── PASO 4: Reiniciar el servicio (relanza el CMD del Dockerfile) ────────────
     echo ""
-    log "Reiniciando proceso Node.js dentro del contenedor..."
-
-    # Matar y relanzar el proceso Node (usa 'node app.js' que es el CMD del Dockerfile)
-    docker exec "$CONTAINER" sh -c "
-        PID=\$(pgrep -f 'node app.js' | head -1)
-        if [ -n \"\$PID\" ]; then
-            kill \$PID
-            echo 'Proceso Node (PID '\$PID') terminado.'
-        else
-            echo 'No se encontró proceso Node activo.'
-        fi
-    "
-
-    # Reiniciar el servicio via docker compose (relanza el CMD del contenedor)
+    log "Reiniciando servicio vía docker compose restart..."
     docker compose restart "$APP_SERVICE"
 
     echo ""
