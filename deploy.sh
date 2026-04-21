@@ -63,6 +63,21 @@ get_container_id() {
     dc ps -q "$APP_SERVICE" 2>/dev/null
 }
 
+# ── ¿Ruta absoluta dentro del contenedor cubierta por un bind mount? ────────
+# docker cp sobre un bind mount suele fallar con: unlinkat ... device or resource busy
+# En ese caso el archivo ya es el del host; basta con tener el repo actualizado.
+container_dest_is_bind_mounted() {
+    local dest="$1"
+    local line
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        if [[ "$dest" == "$line" || "$dest" == "$line/"* ]]; then
+            return 0
+        fi
+    done < <(docker inspect "$CONTAINER" --format '{{range .Mounts}}{{if eq .Type "bind"}}{{printf "%s\n" .Destination}}{{end}}{{end}}' 2>/dev/null)
+    return 1
+}
+
 # ── Modo: Status ──────────────────────────────────────────────────────────────
 cmd_status() {
     title "Estado de los Contenedores"
@@ -137,37 +152,48 @@ cmd_hot_reload() {
     log "Contenedor activo: ${CONTAINER:0:12}"
     echo ""
 
-    # ── PASO 1: Parar solo el servicio app (Postgres/Redis siguen arriba) ───────
-    # Así no hay proceso con app.js abierto como ejecutable (evita ETXTBSY / "busy").
-    log "Deteniendo servicio ${YELLOW}$APP_SERVICE${NC} para copiar archivos con seguridad..."
+    # ── PASO 1: Detener el servicio app (Node deja de correr; Postgres/Redis siguen) ─
+    log "Deteniendo servicio ${YELLOW}$APP_SERVICE${NC} (Node) para aplicar archivos..."
     dc stop "$APP_SERVICE"
     sleep 1
     # No volver a llamar get_container_id aquí: `dc ps -q` solo lista contenedores
     # en ejecución; tras `stop` devolvería vacío. El mismo ID de antes sigue válido.
-    echo "  → Contenedor detenido (archivos listos para actualizar)."
+    echo "  → Servicio app detenido."
     echo ""
 
-    # ── PASO 2: Copiar directorios ───────────────────────────────────────────────
+    # ── PASO 2: Copiar al contenedor solo rutas NO bind-mount ───────────────────
+    # Si docker-compose monta ./app.js → /usr/src/app/app.js, `docker cp` falla
+    # (unlinkat busy): el contenedor ya ve los archivos del host en este directorio.
+    log "Sincronizando código (omite rutas con bind mount del compose)..."
     for dir in $HOT_DIRS; do
         if [ -d "$dir" ]; then
-            log "Copiando directorio: ${YELLOW}$dir/${NC}"
-            docker cp "$dir/." "$CONTAINER:$CONTAINER_WORKDIR/$dir/"
-            ok "$dir/"
+            DEST="$CONTAINER_WORKDIR/$dir"
+            if container_dest_is_bind_mounted "$DEST"; then
+                warn "Omitido ${YELLOW}$dir/${NC} → bind mount en contenedor; usa los archivos ya en este repo."
+            else
+                log "Copiando directorio: ${YELLOW}$dir/${NC}"
+                docker cp "$dir/." "$CONTAINER:$DEST/"
+                ok "$dir/"
+            fi
         fi
     done
 
-    # ── PASO 3: Copiar archivos sueltos (contenedor parado: sin mv dentro del FS) ─
+    # ── PASO 3: Archivos sueltos ────────────────────────────────────────────────
     echo ""
     for file in $HOT_FILES; do
         if [ -f "$file" ]; then
             FINAL_DEST="$CONTAINER_WORKDIR/$file"
-            log "Copiando archivo: ${YELLOW}$file${NC}"
-            docker cp "$file" "$CONTAINER:$FINAL_DEST"
-            ok "$file"
+            if container_dest_is_bind_mounted "$FINAL_DEST"; then
+                warn "Omitido ${YELLOW}$file${NC} → bind mount; el contenedor usa el ${YELLOW}./$file${NC} del host."
+            else
+                log "Copiando archivo: ${YELLOW}$file${NC}"
+                docker cp "$file" "$CONTAINER:$FINAL_DEST"
+                ok "$file"
+            fi
         fi
     done
 
-    # ── PASO 4: Arrancar de nuevo (mismo contenedor, código nuevo) ───────────────
+    # ── PASO 4: Arrancar Node de nuevo (docker compose start del servicio app) ───
     echo ""
     log "Iniciando servicio ${YELLOW}$APP_SERVICE${NC}..."
     dc start "$APP_SERVICE"
@@ -310,7 +336,7 @@ cmd_help() {
     echo ""
     echo -e "  ${CYAN}./deploy.sh${NC}           Detección automática (hot o rebuild)"
     echo -e "  ${CYAN}./deploy.sh --pull${NC}    Actualiza desde GitHub y redespliega"
-    echo -e "  ${CYAN}./deploy.sh --hot${NC}     Copia código al contenedor app y stop/start (sin rebuild)"
+    echo -e "  ${CYAN}./deploy.sh --hot${NC}     Stop app → copia (omite bind mounts) → start (sin rebuild)"
     echo -e "  ${CYAN}./deploy.sh --full${NC}    Reconstruye imagen completa (lento, necesario si cambia package.json)"
     echo -e "  ${CYAN}./deploy.sh --status${NC}  Estado y recursos de los contenedores"
     echo -e "  ${CYAN}./deploy.sh --logs${NC}    Sigue los logs del servicio app en tiempo real"
