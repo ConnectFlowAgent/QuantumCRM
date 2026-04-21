@@ -127,21 +127,22 @@ cmd_hot_reload() {
     log "Contenedor activo: ${CONTAINER:0:12}"
     echo ""
 
-    # ── PASO 1: Matar Node ANTES de copiar para liberar locks de archivo ────────
-    log "Deteniendo proceso Node.js para liberar locks de archivo..."
-    docker exec "$CONTAINER" sh -c "
-        PID=\$(pgrep -f 'node app.js' | head -1)
-        if [ -n \"\$PID\" ]; then
-            kill \$PID
-            echo '  → Proceso Node (PID '\$PID') terminado.'
-            sleep 1
-        else
-            echo '  → No se encontró proceso Node activo (puede estar en restart loop).'
-        fi
-    "
+    # ── PASO 1: Parar el servicio app (evita carrera con restart de Docker) ─────
+    # Matar solo "node app.js" (a menudo PID 1) hace que el contenedor caiga y Docker
+    # lo reinicie al instante; el nuevo Node vuelve a abrir app.js y entonces
+    # `mv app.js.deploy_tmp app.js` falla con "Resource busy" / texto en ejecución.
+    log "Deteniendo servicio ${YELLOW}$APP_SERVICE${NC} para copiar archivos con seguridad..."
+    docker compose stop "$APP_SERVICE"
+    sleep 1
+    CONTAINER=$(get_container_id)
+    if [ -z "$CONTAINER" ]; then
+        error "Tras stop, no hay ID de contenedor. Levanta el stack con: docker compose up -d"
+        exit 1
+    fi
+    echo "  → Contenedor detenido (archivos listos para actualizar)."
     echo ""
 
-    # ── PASO 2: Copiar directorios (nunca tienen lock de proceso) ───────────────
+    # ── PASO 2: Copiar directorios ───────────────────────────────────────────────
     for dir in $HOT_DIRS; do
         if [ -d "$dir" ]; then
             log "Copiando directorio: ${YELLOW}$dir/${NC}"
@@ -150,24 +151,21 @@ cmd_hot_reload() {
         fi
     done
 
-    # ── PASO 3: Copiar archivos sueltos vía tmp → mv (operación atómica) ───────
-    # Evita "device or resource busy" en el entry-point (app.js) y similares.
+    # ── PASO 3: Copiar archivos sueltos (contenedor parado: sin mv dentro del FS) ─
     echo ""
     for file in $HOT_FILES; do
         if [ -f "$file" ]; then
-            TMP_DEST="$CONTAINER_WORKDIR/${file}.deploy_tmp"
             FINAL_DEST="$CONTAINER_WORKDIR/$file"
             log "Copiando archivo: ${YELLOW}$file${NC}"
-            docker cp "$file" "$CONTAINER:$TMP_DEST"
-            docker exec "$CONTAINER" sh -c "mv '$TMP_DEST' '$FINAL_DEST'"
+            docker cp "$file" "$CONTAINER:$FINAL_DEST"
             ok "$file"
         fi
     done
 
-    # ── PASO 4: Reiniciar el servicio (relanza el CMD del Dockerfile) ────────────
+    # ── PASO 4: Arrancar de nuevo (mismo contenedor, código nuevo) ───────────────
     echo ""
-    log "Reiniciando servicio vía docker compose restart..."
-    docker compose restart "$APP_SERVICE"
+    log "Iniciando servicio ${YELLOW}$APP_SERVICE${NC}..."
+    docker compose start "$APP_SERVICE"
 
     echo ""
     ok "Hot deploy completado."
