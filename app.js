@@ -14,7 +14,6 @@ const ecommerceRoutes = require('./routes/ecommerceRoutes');
 const authRoutes = require('./routes/authRoutes');
 const integrationRoutes = require('./routes/integrationRoutes');
 const { startDripCampaignEngine } = require('./services/sequenceEngine');
-const { verifyToken } = require('./middlewares/authMiddleware');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,9 +30,9 @@ app.use('/api/ecommerce',    ecommerceRoutes);
 app.use('/api/auth',         authRoutes);
 app.use('/api/integrations', integrationRoutes);
 
-// Protected Routes (UI dashboard calls)
-app.use('/api/analytics', verifyToken, analyticsRoutes);
-app.use('/api',           verifyToken, uiRoutes);
+// Protected Routes (UI dashboard calls — auth applied inside each router)
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api', uiRoutes);
 
 // Iniciar CRON Jobs
 startFollowUpCron();

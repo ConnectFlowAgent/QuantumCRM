@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { verifyToken } = require('../middlewares/authMiddleware');
 const analyticsService = require('../services/analytics');
+
+router.use(verifyToken);
 
 // GET /api/analytics/tfr
 router.get('/tfr', async (req, res) => {
