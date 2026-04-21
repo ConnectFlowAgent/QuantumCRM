@@ -87,13 +87,14 @@ cmd_stop() {
 # ── Modo: Full Rebuild ────────────────────────────────────────────────────────
 cmd_full_rebuild() {
     title "Rebuild Completo — QuantumCRM"
-    log "Reconstruyendo imagen Docker y reiniciando servicios..."
+    log "Reconstruyendo imagen Docker desde cero (sin caché)..."
     echo ""
 
     START_TIME=$(date +%s)
 
-    # Rebuild y restart solo del servicio app (sin tocar postgres ni redis)
-    docker compose up -d --build --no-deps "$APP_SERVICE"
+    # Forzar rebuild sin cache para garantizar que los archivos locales entren frescos
+    docker compose build --no-cache --no-deps "$APP_SERVICE"
+    docker compose up -d --no-deps "$APP_SERVICE"
 
     END_TIME=$(date +%s)
     ELAPSED=$((END_TIME - START_TIME))
