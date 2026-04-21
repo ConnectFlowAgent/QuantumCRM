@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp AI CRM - Workspace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="app-layout">
+        
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">Q</div>
+                <h1>QuantumCRM</h1>
+            </div>
+            
+            <ul class="nav-links">
+                <li class="active" id="nav-dashboard">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 17V9m-5 8v-4m-5 4v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Dashboard
+                </li>
+                <li id="nav-inbox">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Live Inbox
+                </li>
+                <li id="nav-campaigns">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Gestión Campañas
+                </li>
+                <li id="nav-logs">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17h16M4 12h16M4 7h16"/></svg>
+                    Diagnóstico Vivo
+                </li>
+                <li id="nav-settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                    Configuración
+                </li>
+            </ul>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="view-section active-view">
+                <header class="section-header">
+                    <h2>Métricas de Rendimiento</h2>
+                    <p>Monitoreo en tiempo real del bot y conversiones.</p>
+                </header>
+
+                <div class="metrics-grid">
+                    <div class="metric-card glass">
+                        <div class="metric-title">Tasa de Conversión</div>
+                        <div class="metric-value" id="val-conversion">--%</div>
+                        <div class="metric-footer">Leads en estado CLOSED_WON</div>
+                    </div>
+                    
+                    <div class="metric-card glass">
+                        <div class="metric-title">TFR Promedio</div>
+                        <div class="metric-value" id="val-tfr">--</div>
+                        <div class="metric-footer">Time To First Response</div>
+                    </div>
+
+                    <div class="metric-card glass" style="border: 1px solid rgba(46, 213, 115, 0.3);">
+                        <div class="metric-title" style="color: #2ed573;">Gasto Estimado (Mes)</div>
+                        <div class="metric-value" style="color: #2ed573;" id="val-billing">$0.00</div>
+                        <div class="metric-footer" id="val-billing-breakdown">Inbound: 0 | Bot: 0 | Plantillas: 0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: INBOX -->
+            <section id="view-inbox" class="view-section">
+                <header class="section-header">
+                    <h2>Live Inbox</h2>
+                    <p>Monitorea y atiende las pausas de Handoff.</p>
+                </header>
+
+                <div class="inbox-container">
+                    
+                    <!-- Leads List -->
+                    <div class="leads-panel glass">
+                        <div class="search-bar">
+                            <input type="text" placeholder="Buscar prospectos...">
+                        </div>
+                        <ul class="leads-list" id="leads-list-container">
+                            <!-- JS Injects Leads here -->
+                            <div class="loading-state">Cargando leads...</div>
+                        </ul>
+                    </div>
+
+                    <!-- Chat View -->
+                    <div class="chat-panel glass">
+                        <div class="chat-header" id="chat-header">
+                            <h3>Selecciona un Lead</h3>
+                            <span class="status-badge" style="display:none;"></span>
+                        </div>
+                        <div class="chat-history" id="chat-history-container">
+                            <!-- JS Injects Messages here -->
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                <p>Haz clic en un contacto para ver el historial.</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-area" id="chat-input-area" style="opacity: 0.5; pointer-events: none;">
+                            <input type="text" placeholder="Enviar mensaje a usuario (Requiere conexión Webhook)...">
+                            <button class="btn-send">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: CAMPAIGNS -->
+            <section id="view-campaigns" class="view-section">
+                <header class="section-header">
+                    <h2>Gestión de Campañas</h2>
+                    <p>Edita los copies y mensajes de todo tu embudo aquí. Soporta variables como {{name}}.</p>
+                </header>
+
+                <div class="campaigns-grid" id="campaigns-grid">
+                    <div class="loading-state">Cargando plantillas del sistema...</div>
+                </div>
+            </section>
+
+            <!-- VIEW: LOGS / DIAGNOSTICO -->
+            <section id="view-logs" class="view-section">
+                <header class="section-header" style="display:flex; justify-content: space-between; align-items:center;">
+                    <div>
+                        <h2>Terminal de Eventos y Errores (Logs)</h2>
+                        <p>Supervisa comandos internos, crons, o caídas de OpenAI aquí mismo.</p>
+                    </div>
+                    <button class="btn-refresh" onclick="loadLogs()">↻ Refresh</button>
+                </header>
+
+                <div class="console-terminal glass" id="logs-container">
+                    <div class="loading-state" style="color:var(--success);">Conectado. Leyendo stdout...</div>
+                </div>
+            </section>
+
+            <!-- VIEW: SETTINGS -->
+            <section id="view-settings" class="view-section">
+                <header class="section-header">
+                    <h2>Configuración (Meta)</h2>
+                    <p>Gestiona tus credenciales de WhatsApp Business de forma viva.</p>
+                </header>
+
+                <div class="settings-container glass">
+                    <form id="settings-form">
+                        <div class="form-group">
+                            <label>WhatsApp Verify Token (Webhook Handshake)</label>
+                            <input type="text" id="cfg-verify-token" placeholder="my_secure_token_123">
+                            <small>Token que debe coincidir con la plataforma de Meta developers.</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>WhatsApp Access Token</label>
+                            <input type="password" id="cfg-access-token" placeholder="EAAI...">
+                            <small>Token generado de sistema o usuario temporal (Bearer).</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone Number ID</label>
+                            <input type="text" id="cfg-phone-id" placeholder="1029384756...">
+                            <small>Identificador del número que envía los mensajes desde Graph API.</small>
+                        </div>
+
+                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
+                        <h3>Configuración Multicanal (SMTP)</h3>
+                        <br>
+
+                        <div class="form-group">
+                            <label>Host SMTP</label>
+                            <input type="text" id="cfg-smtp-host" placeholder="smtp.gmail.com">
+                            <small>Servidor de salida de correo para Secuencias E-Commerce Día 0.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario SMTP (Correo)</label>
+                            <input type="text" id="cfg-smtp-user" placeholder="ventas@tuempresa.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña SMTP (App Password)</label>
+                            <input type="password" id="cfg-smtp-pass" placeholder="••••••••">
+                        </div>
+
+                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
+                        <h3>Inteligencia Artificial (Agente OpenAI)</h3>
+                        <br>
+
+                        <div class="form-group">
+                            <label>OpenAI API Key</label>
+                            <input type="password" id="cfg-openai-key" placeholder="sk-proj-...">
+                            <small>Pide tu token en platform.openai.com para habilitar el cerebro del CRM.</small>
+                        </div>
+                        <div class="form-group">
+                            <label>System Prompt (Personalidad y Reglas)</label>
+                            <textarea id="cfg-openai-prompt" class="campaign-textarea" placeholder="Eres el vendedor estrella..."></textarea>
+                        </div>
+
+                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
+                        <h3>Informes Financieros y Costos (Meta/Facebook)</h3>
+                        <br>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                            <div class="form-group">
+                                <label>Precio Inbound ($)</label>
+                                <input type="number" step="0.0001" id="cfg-cost-inbound" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Precio Outbound Orgánico ($)</label>
+                                <input type="number" step="0.0001" id="cfg-cost-bot" placeholder="0.005">
+                            </div>
+                            <div class="form-group">
+                                <label>Precio Outbound Plantilla ($)</label>
+                                <input type="number" step="0.0001" id="cfg-cost-template" placeholder="0.04">
+                            </div>
+                        </div>
+                        <small style="display:block; margin-bottom: 24px;">Configura tu tarifa por área geográfica en USD para calcular el gasto en el Dashboard.</small>
+
+                        <button type="submit" class="btn-save">Guardar Cambios</button>
+                        <div class="alert-message" id="settings-alert"></div>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script src="./js/app.js"></script>
+</body>
+</html>
