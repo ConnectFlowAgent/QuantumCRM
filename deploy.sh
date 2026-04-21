@@ -134,11 +134,8 @@ cmd_hot_reload() {
     log "Deteniendo servicio ${YELLOW}$APP_SERVICE${NC} para copiar archivos con seguridad..."
     docker compose stop "$APP_SERVICE"
     sleep 1
-    CONTAINER=$(get_container_id)
-    if [ -z "$CONTAINER" ]; then
-        error "Tras stop, no hay ID de contenedor. Levanta el stack con: docker compose up -d"
-        exit 1
-    fi
+    # No volver a llamar get_container_id aquí: `docker compose ps -q` solo lista
+    # contenedores en ejecución; tras `stop` devolvería vacío. El mismo ID sigue válido.
     echo "  → Contenedor detenido (archivos listos para actualizar)."
     echo ""
 
