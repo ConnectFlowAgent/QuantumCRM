@@ -4,7 +4,8 @@
 #  Actualiza el contenedor con los cambios de código más recientes.
 #
 #  Uso:
-#    ./deploy.sh              → deploy inteligente (detecta si huedes deps)
+#    ./deploy.sh              → deploy inteligente (detecta si hay cambios en deps)
+#    ./deploy.sh --pull       → git pull + redeploy automático
 #    ./deploy.sh --full       → reconstruir imagen completa (docker-compose up --build)
 #    ./deploy.sh --hot        → solo copia archivos y reinicia el proceso Node (sin rebuild)
 #    ./deploy.sh --status     → muestra el estado de los contenedores
@@ -168,6 +169,91 @@ cmd_hot_reload() {
     docker compose logs -f --tail=30 "$APP_SERVICE"
 }
 
+# ── Modo: Pull desde Git + Redeploy ──────────────────────────────────────────
+cmd_pull() {
+    title "Actualizar desde GitHub — QuantumCRM"
+
+    # Verificar que sea un repositorio Git
+    if ! git rev-parse --git-dir &>/dev/null; then
+        error "Este directorio no es un repositorio Git."
+        exit 1
+    fi
+
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    REMOTE=$(git remote get-url origin 2>/dev/null || echo "(sin remote)")
+
+    log "Rama activa  : ${YELLOW}${BRANCH}${NC}"
+    log "Remote origin: ${YELLOW}${REMOTE}${NC}"
+    echo ""
+
+    # Fetch silencioso para obtener info antes de pull
+    log "Obteniendo cambios remotos (git fetch)..."
+    git fetch origin "$BRANCH" 2>&1 | sed "s/^/  /"
+    echo ""
+
+    # Mostrar commits que llegarán
+    INCOMING=$(git log HEAD..origin/"$BRANCH" --oneline 2>/dev/null)
+    if [ -z "$INCOMING" ]; then
+        ok "Ya estás al día con ${REMOTE}. No hay commits nuevos."
+        echo ""
+        exit 0
+    fi
+
+    echo -e "${BOLD}  Commits nuevos que se aplicarán:${NC}"
+    git log HEAD..origin/"$BRANCH" --oneline --decorate | sed "s/^/    ${CYAN}→${NC} /"
+    echo ""
+
+    # Mostrar resumen de archivos modificados
+    CHANGED_FILES=$(git diff --name-status HEAD origin/"$BRANCH" 2>/dev/null)
+    if [ -n "$CHANGED_FILES" ]; then
+        echo -e "${BOLD}  Archivos afectados:${NC}"
+        git diff --name-status HEAD origin/"$BRANCH" | awk '
+            /^A/ { print "    \033[0;32m+  " $2 "\033[0m" }
+            /^M/ { print "    \033[1;33m~  " $2 "\033[0m" }
+            /^D/ { print "    \033[0;31m-  " $2 "\033[0m" }
+        '
+        echo ""
+    fi
+
+    # Detectar si package.json cambia (necesitará rebuild)
+    PKG_CHANGED=false
+    if git diff --name-only HEAD origin/"$BRANCH" 2>/dev/null | grep -qE 'package(-lock)?\.json'; then
+        warn "package.json cambia → se requerirá rebuild completo."
+        PKG_CHANGED=true
+        echo ""
+    fi
+
+    # Confirmar antes de hacer pull
+    read -p "  ¿Aplicar cambios con git pull? (s/N): " CONFIRM_PULL
+    if [[ ! "$CONFIRM_PULL" =~ ^[sS]$ ]]; then
+        warn "Pull cancelado por el usuario."
+        exit 0
+    fi
+
+    echo ""
+    log "Ejecutando git pull origin ${BRANCH}..."
+    git pull origin "$BRANCH"
+    echo ""
+    ok "Código actualizado desde GitHub."
+    echo ""
+
+    # Preguntar si redeploy
+    read -p "  ¿Redesplegar ahora? (s/N): " CONFIRM_DEPLOY
+    if [[ ! "$CONFIRM_DEPLOY" =~ ^[sS]$ ]]; then
+        warn "Redeploy omitido. Ejecuta './deploy.sh' cuando quieras aplicar los cambios."
+        exit 0
+    fi
+
+    echo ""
+    if [ "$PKG_CHANGED" = true ]; then
+        log "Dependencias cambiaron → ejecutando rebuild completo..."
+        cmd_full_rebuild
+    else
+        log "Sin cambios en dependencias → ejecutando hot deploy..."
+        cmd_hot_reload
+    fi
+}
+
 # ── Modo: Auto-detectar si necesita rebuild completo ─────────────────────────
 cmd_auto() {
     title "QuantumCRM — Auto Deploy"
@@ -212,6 +298,7 @@ cmd_help() {
     echo -e "${BOLD}QuantumCRM — Docker Deploy Script${NC}"
     echo ""
     echo -e "  ${CYAN}./deploy.sh${NC}           Detección automática (hot o rebuild)"
+    echo -e "  ${CYAN}./deploy.sh --pull${NC}    Actualiza desde GitHub y redespliega"
     echo -e "  ${CYAN}./deploy.sh --hot${NC}     Copia archivos y reinicia Node (rápido, sin rebuild)"
     echo -e "  ${CYAN}./deploy.sh --full${NC}    Reconstruye imagen completa (lento, necesario si cambia package.json)"
     echo -e "  ${CYAN}./deploy.sh --status${NC}  Estado y recursos de los contenedores"
@@ -230,6 +317,7 @@ cmd_help() {
 check_docker
 
 case "${1:-}" in
+    --pull)    cmd_pull ;;
     --full)    cmd_full_rebuild ;;
     --hot)     cmd_hot_reload ;;
     --status)  cmd_status ;;
