@@ -145,17 +145,19 @@ router.post('/whatsapp/test-connection', async (req, res) => {
     }
 
     try {
-        // Llamar a la Graph API de Meta para verificar el Phone Number ID
-        const apiUrl = `https://graph.facebook.com/v19.0/${phone_number_id}?fields=display_phone_number,verified_name,quality_rating&access_token=${access_token}`;
-        
-        const response = await fetch(apiUrl);
+        const graphVersion = 'v19.0';
+        const apiUrl = `https://graph.facebook.com/${graphVersion}/${encodeURIComponent(phone_number_id)}?fields=display_phone_number,verified_name,quality_rating`;
+
+        const response = await fetch(apiUrl, {
+            headers: { Authorization: `Bearer ${access_token}` }
+        });
         const data = await response.json();
 
         if (response.ok && data.display_phone_number) {
             res.json({
                 success: true,
                 status: 'connected',
-                message: `✅ Conectado correctamente`,
+                message: 'Conexión verificada correctamente con Meta Graph API.',
                 details: {
                     phone: data.display_phone_number,
                     name: data.verified_name || 'N/A',
@@ -163,11 +165,11 @@ router.post('/whatsapp/test-connection', async (req, res) => {
                 }
             });
         } else {
-            const errMsg = data.error ? data.error.message : 'Credenciales inválidas o sin permisos.';
+            const errMsg = data.error ? data.error.message : 'Credenciales inválidas o permisos insuficientes.';
             res.json({
                 success: false,
                 status: 'failed',
-                message: `❌ Error: ${errMsg}`
+                message: `Error de validación: ${errMsg}`
             });
         }
     } catch (error) {
@@ -175,7 +177,7 @@ router.post('/whatsapp/test-connection', async (req, res) => {
         res.status(500).json({
             success: false,
             status: 'error',
-            message: 'No se pudo contactar a la API de Meta. Revisa tu conexión a internet.'
+            message: 'No fue posible contactar la API de Meta. Compruebe conectividad de red y firewall corporativo.'
         });
     }
 });

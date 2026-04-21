@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp AI CRM - Workspace</title>
+    <title>QuantumCRM — Área de trabajo</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
 </head>
@@ -20,19 +20,19 @@
             <ul class="nav-links">
                 <li class="active" id="nav-dashboard">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 17V9m-5 8v-4m-5 4v-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Dashboard
+                    Panel ejecutivo
                 </li>
                 <li id="nav-inbox">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Live Inbox
+                    Conversaciones
                 </li>
                 <li id="nav-campaigns">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    Gestión Campañas
+                    Plantillas y embudo
                 </li>
                 <li id="nav-logs">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17h16M4 12h16M4 7h16"/></svg>
-                    Diagnóstico Vivo
+                    Registro de sistema
                 </li>
                 <li id="nav-settings">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -42,41 +42,41 @@
         </nav>
 
         <!-- MAIN CONTENT AREA -->
-        <main class="main-content">
+        <main class="main-content main-content-enterprise">
             
             <!-- VIEW: DASHBOARD -->
-            <section id="view-dashboard" class="view-section active-view">
+            <section id="view-dashboard" class="view-section active-view view-enterprise">
                 <header class="section-header">
-                    <h2>Métricas de Rendimiento</h2>
-                    <p>Monitoreo en tiempo real del bot y conversiones.</p>
+                    <h2>Panel ejecutivo</h2>
+                    <p>Indicadores operativos de conversación, tiempo de primera respuesta y coste estimado según la tarifa configurada.</p>
                 </header>
 
                 <div class="metrics-grid">
                     <div class="metric-card glass">
-                        <div class="metric-title">Tasa de Conversión</div>
+                        <div class="metric-title">Tasa de conversión</div>
                         <div class="metric-value" id="val-conversion">--%</div>
-                        <div class="metric-footer">Leads en estado CLOSED_WON</div>
+                        <div class="metric-footer">Oportunidades en estado CLOSED_WON</div>
                     </div>
                     
                     <div class="metric-card glass">
-                        <div class="metric-title">TFR Promedio</div>
+                        <div class="metric-title">TFR medio</div>
                         <div class="metric-value" id="val-tfr">--</div>
-                        <div class="metric-footer">Time To First Response</div>
+                        <div class="metric-footer">Tiempo hasta la primera respuesta (Time to first response)</div>
                     </div>
 
-                    <div class="metric-card glass" style="border: 1px solid rgba(46, 213, 115, 0.3);">
-                        <div class="metric-title" style="color: #2ed573;">Gasto Estimado (Mes)</div>
-                        <div class="metric-value" style="color: #2ed573;" id="val-billing">$0.00</div>
-                        <div class="metric-footer" id="val-billing-breakdown">Inbound: 0 | Bot: 0 | Plantillas: 0</div>
+                    <div class="metric-card glass metric-card--highlight">
+                        <div class="metric-title">Coste estimado (periodo)</div>
+                        <div class="metric-value" id="val-billing">$0.00</div>
+                        <div class="metric-footer" id="val-billing-breakdown">Entrantes: 0 · Agente: 0 · Plantillas: 0</div>
                     </div>
                 </div>
             </section>
 
             <!-- VIEW: INBOX -->
-            <section id="view-inbox" class="view-section">
+            <section id="view-inbox" class="view-section view-enterprise">
                 <header class="section-header">
-                    <h2>Live Inbox</h2>
-                    <p>Monitorea y atiende las pausas de Handoff.</p>
+                    <h2>Centro de conversaciones</h2>
+                    <p>Supervise el embudo, los estados de derivación a agente humano y el historial por contacto.</p>
                 </header>
 
                 <div class="inbox-container">
@@ -84,139 +84,140 @@
                     <!-- Leads List -->
                     <div class="leads-panel glass">
                         <div class="search-bar">
-                            <input type="text" placeholder="Buscar prospectos...">
+                            <input type="text" placeholder="Buscar por nombre o teléfono…">
                         </div>
                         <ul class="leads-list" id="leads-list-container">
                             <!-- JS Injects Leads here -->
-                            <div class="loading-state">Cargando leads...</div>
+                            <div class="loading-state">Cargando contactos…</div>
                         </ul>
                     </div>
 
                     <!-- Chat View -->
                     <div class="chat-panel glass">
                         <div class="chat-header" id="chat-header">
-                            <h3>Selecciona un Lead</h3>
+                            <h3>Seleccione un contacto</h3>
                             <span class="status-badge" style="display:none;"></span>
                         </div>
                         <div class="chat-history" id="chat-history-container">
                             <!-- JS Injects Messages here -->
                             <div class="empty-state">
                                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                                <p>Haz clic en un contacto para ver el historial.</p>
+                                <p>Seleccione un contacto en el panel izquierdo para cargar el historial.</p>
                             </div>
                         </div>
                         <div class="chat-input-area" id="chat-input-area" style="opacity: 0.5; pointer-events: none;">
-                            <input type="text" placeholder="Enviar mensaje a usuario (Requiere conexión Webhook)...">
-                            <button class="btn-send">Enviar</button>
+                            <input type="text" placeholder="Mensaje saliente (requiere webhook y credenciales activas)…">
+                            <button type="button" class="btn-send">Enviar</button>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- VIEW: CAMPAIGNS -->
-            <section id="view-campaigns" class="view-section">
+            <section id="view-campaigns" class="view-section view-enterprise">
                 <header class="section-header">
-                    <h2>Gestión de Campañas</h2>
-                    <p>Edita los copies y mensajes de todo tu embudo aquí. Soporta variables como {{name}}.</p>
+                    <h2>Plantillas del embudo</h2>
+                    <p>Edición centralizada de mensajes por nodo del flujo. Variables admitidas, por ejemplo: {{name}}.</p>
                 </header>
 
                 <div class="campaigns-grid" id="campaigns-grid">
-                    <div class="loading-state">Cargando plantillas del sistema...</div>
+                    <div class="loading-state">Cargando plantillas…</div>
                 </div>
             </section>
 
             <!-- VIEW: LOGS / DIAGNOSTICO -->
-            <section id="view-logs" class="view-section">
-                <header class="section-header" style="display:flex; justify-content: space-between; align-items:center;">
+            <section id="view-logs" class="view-section view-enterprise">
+                <header class="section-header section-header--row">
                     <div>
-                        <h2>Terminal de Eventos y Errores (Logs)</h2>
-                        <p>Supervisa comandos internos, crons, o caídas de OpenAI aquí mismo.</p>
+                        <h2>Registro de eventos</h2>
+                        <p>Traza operativa de la aplicación, tareas programadas e integraciones (p. ej. OpenAI). Uso recomendado para soporte TI.</p>
                     </div>
-                    <button class="btn-refresh" onclick="loadLogs()">↻ Refresh</button>
+                    <button type="button" class="btn-refresh" onclick="loadLogs()">Actualizar</button>
                 </header>
 
                 <div class="console-terminal glass" id="logs-container">
-                    <div class="loading-state" style="color:var(--success);">Conectado. Leyendo stdout...</div>
+                    <div class="loading-state log-loading-hint">Conectado. Esperando consulta…</div>
                 </div>
             </section>
 
             <!-- VIEW: SETTINGS -->
-            <section id="view-settings" class="view-section">
+            <section id="view-settings" class="view-section view-enterprise view-settings-enterprise">
                 <header class="section-header">
-                    <h2>Configuración (Meta)</h2>
-                    <p>Gestiona tus credenciales de WhatsApp Business de forma viva.</p>
+                    <h2>Configuración empresarial</h2>
+                    <p>Integración Meta WhatsApp Cloud API, canales de correo y políticas del asistente. Los cambios en credenciales aplican de inmediato tras guardar.</p>
                 </header>
 
-                <!-- 🔌 PANEL DE CONEXIÓN WHATSAPP -->
-                <div class="whatsapp-connect-panel glass">
+                <div class="whatsapp-connect-panel glass whatsapp-connect-panel--enterprise">
                     <div class="wc-panel-header">
-                        <div class="wc-icon-wrap">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        <div class="wc-icon-wrap" aria-hidden="true">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                <circle cx="12" cy="12" r="3"/>
                             </svg>
                         </div>
                         <div>
-                            <h3>Conexión WhatsApp Business</h3>
-                            <p>Verifica tus credenciales de la Cloud API de Meta antes de usarlas.</p>
+                            <h3>WhatsApp Cloud API — validación de conectividad</h3>
+                            <p class="wc-lead">Compruebe el token y el identificador de número contra Graph API antes de persistirlos en el almacén de configuración.</p>
                         </div>
                         <div class="wc-status-badge" id="wc-status-badge">
                             <span class="wc-status-dot" id="wc-status-dot"></span>
-                            <span id="wc-status-label">Sin verificar</span>
+                            <span id="wc-status-label">Pendiente de verificación</span>
                         </div>
                     </div>
 
                     <div class="wc-fields">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label>Access Token <span style="color:var(--accent);">*</span></label>
+                        <div class="form-group wc-field-group">
+                            <label>Access token (Graph API) <span class="wc-req">*</span></label>
                             <div class="wc-input-wrap">
-                                <input type="password" id="wc-access-token" placeholder="EAAI..." autocomplete="off">
-                                <button type="button" class="wc-eye-btn" id="wc-eye-token" onclick="toggleVisibility('wc-access-token', 'wc-eye-token')">
+                                <input type="password" id="wc-access-token" placeholder="Token de sistema o de usuario" autocomplete="off">
+                                <button type="button" class="wc-eye-btn" id="wc-eye-token" title="Mostrar u ocultar" aria-label="Mostrar u ocultar token" onclick="toggleVisibility('wc-access-token', 'wc-eye-token')">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                 </button>
                             </div>
-                            <small>Token Bearer de la Graph API (temporal de usuario o permanente de sistema).</small>
+                            <small>Token Bearer emitido en Meta Business Suite / Developers con permisos de WhatsApp Business.</small>
                         </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label>Phone Number ID <span style="color:var(--accent);">*</span></label>
+                        <div class="form-group wc-field-group">
+                            <label>Phone number ID <span class="wc-req">*</span></label>
                             <div class="wc-input-wrap">
-                                <input type="text" id="wc-phone-id" placeholder="1029384756...">
+                                <input type="text" id="wc-phone-id" placeholder="ID numérico del número en producción o prueba">
                             </div>
-                            <small>Identificador del número de teléfono en Meta Developers → WhatsApp → API Setup.</small>
+                            <small>Ubicación habitual: Meta for Developers → su aplicación → WhatsApp → API Setup.</small>
                         </div>
                     </div>
 
                     <div class="wc-footer">
                         <div class="wc-result-box" id="wc-result-box" style="display:none;"></div>
-                        <button class="btn-connect-now" id="btn-connect-now" onclick="testWhatsAppConnection()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            Conectar Ahora
+                        <button type="button" class="btn-connect-now" id="btn-connect-now" onclick="testWhatsAppConnection()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            Verificar conexión
                         </button>
                     </div>
+                    <p class="wc-footnote">Tras una verificación exitosa, los campos inferiores se completan; confirme y utilice <strong>Guardar configuración</strong> para registrar en base de datos.</p>
                 </div>
 
-                <div class="settings-container glass" style="margin-top: 24px;">
+                <div class="settings-container glass settings-container-enterprise">
                     <form id="settings-form">
-                        <h3 style="margin-bottom:20px; color: var(--text-muted); font-size:0.9rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em;">🔐 Credenciales WhatsApp</h3>
+                        <h3 class="settings-form-section-title">Credenciales WhatsApp y webhook</h3>
                         <div class="form-group">
-                            <label>Verify Token (Webhook Handshake)</label>
-                            <input type="text" id="cfg-verify-token" placeholder="my_secure_token_123">
-                            <small>Token que debe coincidir con la plataforma de Meta developers.</small>
+                            <label>Verify token (handshake del webhook)</label>
+                            <input type="text" id="cfg-verify-token" placeholder="Cadena acordada con Meta al suscribir el webhook">
+                            <small>Debe coincidir exactamente con el verify token configurado en la consola de Meta para la URL de este servidor.</small>
                         </div>
                         
                         <div class="form-group">
-                            <label>Access Token</label>
-                            <input type="password" id="cfg-access-token" placeholder="EAAI...">
-                            <small>Se guarda encriptado en la base de datos.</small>
+                            <label>Access token</label>
+                            <input type="password" id="cfg-access-token" placeholder="Token Bearer">
+                            <small>Almacenamiento en base de datos corporativa; restrinja el acceso al rol de administrador de la plataforma.</small>
                         </div>
 
                         <div class="form-group">
-                            <label>Phone Number ID</label>
-                            <input type="text" id="cfg-phone-id" placeholder="1029384756...">
-                            <small>Identificador del número que envía los mensajes desde Graph API.</small>
+                            <label>Phone number ID</label>
+                            <input type="text" id="cfg-phone-id" placeholder="ID numérico">
+                            <small>Identificador utilizado en las rutas de envío de la Cloud API.</small>
                         </div>
 
-                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
-                        <h3 style="margin-bottom:20px;">📧 Configuración Multicanal (SMTP)</h3>
+                        <hr class="settings-divider">
+                        <h3 class="settings-form-section-title">Correo electrónico (SMTP)</h3>
 
                         <div class="form-group">
                             <label>Host SMTP</label>
@@ -232,21 +233,21 @@
                             <input type="password" id="cfg-smtp-pass" placeholder="••••••••">
                         </div>
 
-                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
-                        <h3 style="margin-bottom:20px;">🤖 Inteligencia Artificial (Agente OpenAI)</h3>
+                        <hr class="settings-divider">
+                        <h3 class="settings-form-section-title">Inteligencia artificial (OpenAI)</h3>
 
                         <div class="form-group">
                             <label>OpenAI API Key</label>
                             <input type="password" id="cfg-openai-key" placeholder="sk-proj-...">
-                            <small>Pide tu token en platform.openai.com para habilitar el cerebro del CRM.</small>
+                            <small>Clave de API en <a href="https://platform.openai.com" target="_blank" rel="noopener noreferrer" style="color:var(--primary);">platform.openai.com</a>; el uso implica coste según su contrato con OpenAI.</small>
                         </div>
                         <div class="form-group">
-                            <label>System Prompt (Personalidad y Reglas)</label>
-                            <textarea id="cfg-openai-prompt" class="campaign-textarea" placeholder="Eres el vendedor estrella..."></textarea>
+                            <label>Instrucciones de sistema (rol y políticas)</label>
+                            <textarea id="cfg-openai-prompt" class="campaign-textarea" placeholder="Defina tono, límites y objetivos comerciales del asistente…"></textarea>
                         </div>
 
-                        <hr style="border-color: var(--surface-border); margin: 24px 0;">
-                        <h3 style="margin-bottom:20px;">💰 Informes Financieros y Costos (Meta/Facebook)</h3>
+                        <hr class="settings-divider">
+                        <h3 class="settings-form-section-title">Costos de conversación (referencia en USD)</h3>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
                             <div class="form-group">
@@ -262,9 +263,9 @@
                                 <input type="number" step="0.0001" id="cfg-cost-template" placeholder="0.04">
                             </div>
                         </div>
-                        <small style="display:block; margin-bottom: 24px;">Configura tu tarifa por área geográfica en USD para calcular el gasto en el Dashboard.</small>
+                        <small class="settings-cost-hint">Valores de referencia para estimación en el panel de control; ajústelos según su contrato con Meta.</small>
 
-                        <button type="submit" class="btn-save">💾 Guardar Todos los Cambios</button>
+                        <button type="submit" class="btn-save">Guardar configuración</button>
                         <div class="alert-message" id="settings-alert"></div>
                     </form>
                 </div>

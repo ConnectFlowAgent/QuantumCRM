@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuantumCRM | Login</title>
+    <title>QuantumCRM — Acceso</title>
     <link rel="stylesheet" href="./css/style.css">
     <style>
         body {
@@ -19,10 +19,13 @@
             text-align: center;
         }
         .login-box h2 {
-            margin-bottom: 24px;
+            margin-bottom: 8px;
             background: linear-gradient(135deg, #fff, #a5b4fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        .login-box .login-product {
+            margin-bottom: 24px;
         }
         .form-group input {
             text-align: center;
@@ -32,7 +35,8 @@
 </head>
 <body>
     <div class="login-box glass">
-        <h2>QuantumCRM</h2>
+        <h2>Acceso corporativo</h2>
+        <p class="login-product" style="color:var(--text-muted); font-size:0.9rem;">QuantumCRM</p>
         <form id="login-form">
             <div class="form-group">
                 <input type="text" id="username" placeholder="Usuario" required autocomplete="username">
@@ -40,7 +44,7 @@
             <div class="form-group">
                 <input type="password" id="password" placeholder="Contraseña" required autocomplete="current-password">
             </div>
-            <button type="submit" class="btn-save" style="margin-top:0">Ingresar</button>
+            <button type="submit" class="btn-save" style="margin-top:0">Entrar al área de trabajo</button>
             <div class="alert-message" id="login-alert" style="display:none;"></div>
         </form>
     </div>

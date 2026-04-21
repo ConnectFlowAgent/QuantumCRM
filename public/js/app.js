@@ -92,8 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (billingData.success && billingData.data) {
                 document.getElementById('val-billing').innerText = `$${billingData.data.total_cost}`;
                 const bd = billingData.data.breakdown;
-                document.getElementById('val-billing-breakdown').innerText = 
-                    `Entrada: ${bd.inbound_qty} | Bot: ${bd.bot_qty} | Plantillas: ${bd.template_qty}`;
+                document.getElementById('val-billing-breakdown').innerText =
+                    `Entrantes: ${bd.inbound_qty} · Respuestas de agente: ${bd.bot_qty} · Plantillas: ${bd.template_qty}`;
             }
         } catch (err) {
             console.error('Error cargando métricas:', err);
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = '';
                 
                 if (result.data.length === 0) {
-                    container.innerHTML = `<div class="empty-state">No hay leads todavía.</div>`;
+                    container.innerHTML = `<div class="empty-state">No hay contactos registrados.</div>`;
                     return;
                 }
 
@@ -127,11 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (lead.funnel_status === 'CLOSED_WON') badgeClass = 'status-closed_won';
                     else if (lead.funnel_status.includes('QUALIFY')) badgeClass = 'status-qualifying';
 
-                    const statusTexto = lead.is_paused ? 'HANDOFF REQUERIDO' : lead.funnel_status;
+                    const statusTexto = lead.is_paused ? 'Derivación pendiente' : lead.funnel_status;
 
                     li.innerHTML = `
                         <div class="lead-header">
-                            <span class="lead-name">${lead.name || 'Desconocido'}</span>
+                            <span class="lead-name">${lead.name || 'Sin nombre'}</span>
                             <span class="status-badge ${badgeClass}">${statusTexto}</span>
                         </div>
                         <span class="lead-phone">${lead.phone_number}</span>
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         } catch (err) {
-            container.innerHTML = `<div class="empty-state">Error de conexión.</div>`;
+            container.innerHTML = `<div class="empty-state">No se pudo obtener el listado. Compruebe la sesión y la red.</div>`;
             console.error(err);
         }
     };
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadChatHistory = async (leadId) => {
         currentSelectedLeadId = leadId;
         const container = document.getElementById('chat-history-container');
-        container.innerHTML = `<div class="loading-state">Cargando historial...</div>`;
+        container.innerHTML = `<div class="loading-state">Cargando historial…</div>`;
 
         try {
             const res = await fetch(`/api/conversations/${leadId}`);
@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = '';
                 
                 if (result.data.length === 0) {
-                    container.innerHTML = `<div class="empty-state">Sin mensajes registrados.</div>`;
+                    container.innerHTML = `<div class="empty-state">No hay mensajes en este hilo.</div>`;
                     return;
                 }
 
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const timeStr = new Date(msg.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                     
                     div.innerHTML = `
-                        ${msg.content || '<em>[Media/Interactivos]</em>'}
+                        ${msg.content || '<em>[Contenido no textual]</em>'}
                         <span class="msg-time">${timeStr}</span>
                     `;
                     container.appendChild(div);
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.scrollTop = container.scrollHeight;
             }
         } catch (err) {
-            container.innerHTML = `<div class="empty-state">Error cargando chat.</div>`;
+            container.innerHTML = `<div class="empty-state">No se pudo cargar el historial.</div>`;
             console.error(err);
         }
     };
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Campaigns Logic ---
     const loadCampaigns = async () => {
         const container = document.getElementById('campaigns-grid');
-        container.innerHTML = `<div class="loading-state">Cargando plantillas...</div>`;
+        container.innerHTML = `<div class="loading-state">Cargando plantillas…</div>`;
         
         try {
             const res = await fetch('/api/templates');
@@ -221,17 +221,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     card.innerHTML = `
                         <div class="campaign-header">
-                            <h3>Nodo: ${tpl.node_name}</h3>
-                            <p>Última act: ${timeStr}</p>
+                            <h3>Nodo del embudo · ${tpl.node_name}</h3>
+                            <p>Última modificación: ${timeStr}</p>
                         </div>
                         <textarea class="campaign-textarea" id="tpl-${tpl.node_name}">${tpl.content}</textarea>
-                        <button class="btn-campaign-save" onclick="saveTemplate('${tpl.node_name}')">Guardar Copy</button>
+                        <button type="button" class="btn-campaign-save" onclick="saveTemplate('${tpl.node_name}')">Guardar plantilla</button>
                     `;
                     container.appendChild(card);
                 });
             }
         } catch (err) {
-            container.innerHTML = `<div class="empty-state">Error al cargar listado de copys.</div>`;
+            container.innerHTML = `<div class="empty-state">No se pudo cargar el catálogo de plantillas.</div>`;
             console.error(err);
         }
     };
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.saveTemplate = async (nodeName) => {
         const val = document.getElementById(`tpl-${nodeName}`).value;
         const btn = document.querySelector(`button[onclick="saveTemplate('${nodeName}')"]`);
-        btn.innerText = 'Guardando...';
+        btn.innerText = 'Guardando…';
         
         try {
             const res = await fetch(`/api/templates/${nodeName}`, {
@@ -252,10 +252,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (result.success) {
                 btn.style.background = 'var(--success)';
-                btn.innerText = '¡Guardado!';
+                btn.innerText = 'Guardado';
                 setTimeout(() => {
                     btn.style.background = '';
-                    btn.innerText = 'Guardar Copy';
+                    btn.innerText = 'Guardar plantilla';
                 }, 2000);
             } else {
                 throw new Error("Failed");
@@ -263,21 +263,25 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error(err);
             btn.style.background = 'var(--danger)';
-            btn.innerText = 'Error';
+            btn.innerText = 'Error al guardar';
+            setTimeout(() => {
+                btn.style.background = '';
+                btn.innerText = 'Guardar plantilla';
+            }, 2800);
         }
     };
 
     // --- Logs / Debug Logic ---
     window.loadLogs = async () => {
         const container = document.getElementById('logs-container');
-        container.innerHTML = `<div class="loading-state" style="color:var(--success);">Obteniendo logs de la RAM (Redis)...</div>`;
+        container.innerHTML = `<div class="loading-state log-loading-hint">Consultando registro de eventos…</div>`;
         try {
             const res = await fetch('/api/logs');
             const result = await res.json();
             if (result.success) {
                 container.innerHTML = '';
                 if(result.data.length === 0) {
-                    container.innerHTML = `<div style="color:var(--success);">[OK] Terminal vacía. Ningún evento reciente.</div>`;
+                    container.innerHTML = `<div class="log-empty-ok">Sin eventos en el período consultado.</div>`;
                     return;
                 }
                 
@@ -301,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         } catch (err) {
-            container.innerHTML = `<div style="color:var(--danger)">[SYS_ERROR] No se pudo leer la terminal.</div>`;
+            container.innerHTML = `<div class="log-empty-err">Error al leer el registro de eventos.</div>`;
         }
     };
 
@@ -314,6 +318,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('cfg-verify-token').value = result.data.whatsapp_verify_token || '';
                 document.getElementById('cfg-access-token').value = result.data.whatsapp_access_token || '';
                 document.getElementById('cfg-phone-id').value = result.data.phone_number_id || '';
+                const wcTok = document.getElementById('wc-access-token');
+                const wcPhone = document.getElementById('wc-phone-id');
+                if (wcTok) wcTok.value = result.data.whatsapp_access_token || '';
+                if (wcPhone) wcPhone.value = result.data.phone_number_id || '';
                 document.getElementById('cfg-smtp-host').value = result.data.smtp_host || '';
                 document.getElementById('cfg-smtp-user').value = result.data.smtp_user || '';
                 document.getElementById('cfg-smtp-pass').value = result.data.smtp_pass || '';
@@ -332,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const alertBox = document.getElementById('settings-alert');
         alertBox.className = 'alert-message';
-        alertBox.innerText = 'Guardando...';
+        alertBox.innerText = 'Guardando…';
         alertBox.style.display = 'block';
 
         const payload = {
@@ -359,13 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (result.success) {
                 alertBox.classList.add('alert-success');
-                alertBox.innerText = 'Configuración guardada. Activa instantáneamente en la base de datos.';
+                alertBox.innerText = 'Configuración registrada correctamente en base de datos.';
             } else {
                 throw new Error(result.message);
             }
         } catch (err) {
             alertBox.classList.add('alert-error');
-            alertBox.innerText = 'Error guardando configuración.';
+            alertBox.innerText = 'No fue posible guardar la configuración.';
             console.error(err);
         }
         
@@ -414,15 +422,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!accessToken || !phoneId) {
             resultBox.className = 'wc-result-box result-err';
             resultBox.style.display = 'block';
-            resultBox.textContent = '⚠️ Ingresa el Access Token y el Phone Number ID antes de conectar.';
+            resultBox.textContent = 'Indique access token y phone number ID para ejecutar la validación.';
             setWCStatus('failed', 'Datos incompletos');
             return;
         }
 
         // Estado: verificando
         btn.disabled = true;
-        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Verificando...`;
-        setWCStatus('checking', 'Verificando...');
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Validando…`;
+        setWCStatus('checking', 'Validando…');
         resultBox.className = 'wc-result-box';
         resultBox.style.display = 'none';
 
@@ -436,30 +444,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
             resultBox.style.display = 'block';
             if (data.success) {
-                setWCStatus('connected', '● Conectado');
+                setWCStatus('connected', 'Verificado');
                 resultBox.className = 'wc-result-box result-ok';
                 const d = data.details;
                 resultBox.innerHTML = `
                     <strong>${data.message}</strong><br>
-                    <small>📞 Número: <b>${d.phone}</b> &nbsp;|&nbsp; 🏷️ Nombre: <b>${d.name}</b> &nbsp;|&nbsp; ⭐ Calidad: <b>${d.quality}</b></small>
+                    <small class="wc-result-meta">Número: <b>${d.phone}</b> · Nombre verificado: <b>${d.name}</b> · Calidad: <b>${d.quality}</b></small>
                 `;
-                // Auto-rellenar los campos del formulario de configuración
                 document.getElementById('cfg-access-token').value = accessToken;
                 document.getElementById('cfg-phone-id').value = phoneId;
             } else {
-                setWCStatus('failed', '✕ Error');
+                setWCStatus('failed', 'Error');
                 resultBox.className = 'wc-result-box result-err';
                 resultBox.textContent = data.message;
             }
         } catch (err) {
-            setWCStatus('failed', '✕ Sin conexión');
+            setWCStatus('failed', 'Sin conexión');
             resultBox.className = 'wc-result-box result-err';
             resultBox.style.display = 'block';
-            resultBox.textContent = '❌ Error de red. ¿Está el servidor corriendo?';
+            resultBox.textContent = 'Error de red o servidor no disponible. Compruebe que la aplicación esté en ejecución.';
         }
 
         // Restaurar botón
         btn.disabled = false;
-        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Conectar Ahora`;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verificar conexión`;
     };
 });

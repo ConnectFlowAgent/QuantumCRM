@@ -177,6 +177,19 @@ body {
     font-size: 1rem;
 }
 
+.section-header--row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.main-content-enterprise .view-enterprise .section-header p {
+    max-width: 48rem;
+    line-height: 1.55;
+}
+
 /* ===== DASHBOARD VIEW ===== */
 .metrics-grid {
     display: grid;
@@ -211,6 +224,33 @@ body {
 
 .metric-card:hover::before {
     opacity: 1;
+}
+
+.metric-card--highlight {
+    border: 1px solid rgba(99, 102, 241, 0.28);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.metric-card--highlight::before {
+    opacity: 0.85;
+    background: linear-gradient(90deg, var(--primary), rgba(99, 102, 241, 0.35));
+}
+
+.metric-card--highlight .metric-title {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.metric-card--highlight .metric-value {
+    background: linear-gradient(135deg, #f8fafc 30%, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.metric-card--highlight .metric-footer {
+    font-variant-numeric: tabular-nums;
 }
 
 .metric-title {
@@ -577,11 +617,27 @@ body {
     background: transparent;
     border: 1px solid var(--primary);
     color: var(--primary);
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
-    font-family: monospace;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
     transition: 0.2s;
+}
+
+.log-loading-hint {
+    color: var(--text-muted);
+}
+
+.log-empty-ok {
+    color: var(--success);
+    font-size: 0.9rem;
+}
+
+.log-empty-err {
+    color: var(--danger);
+    font-size: 0.9rem;
 }
 
 .btn-refresh:hover {
@@ -656,7 +712,7 @@ body {
     border: 1px solid var(--success);
 }
 
-/* ===== WHATSAPP CONNECT PANEL ===== */
+/* ===== WHATSAPP CONNECT PANEL (enterprise) ===== */
 .alert-error {
     display: block;
     background: rgba(239, 68, 68, 0.2);
@@ -664,19 +720,55 @@ body {
     border: 1px solid var(--danger);
 }
 
+.view-settings-enterprise .section-header p {
+    max-width: 52rem;
+    line-height: 1.55;
+}
+
 .whatsapp-connect-panel {
-    padding: 32px;
-    max-width: 700px;
-    border: 1px solid rgba(37, 211, 102, 0.2);
+    padding: 28px 32px 24px;
+    max-width: 720px;
+    border: 1px solid var(--surface-border);
     position: relative;
     overflow: hidden;
 }
 
-.whatsapp-connect-panel::before {
+.whatsapp-connect-panel--enterprise::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, #25d366, #128c7e);
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary), rgba(99, 102, 241, 0.35));
+}
+
+.settings-container-enterprise {
+    margin-top: 24px;
+    max-width: 720px;
+}
+
+.settings-form-section-title {
+    margin-bottom: 18px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.settings-divider {
+    border: none;
+    border-top: 1px solid var(--surface-border);
+    margin: 28px 0;
+}
+
+.settings-cost-hint {
+    display: block;
+    margin-bottom: 22px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
 }
 
 .wc-panel-header {
@@ -688,16 +780,16 @@ body {
 }
 
 .wc-icon-wrap {
-    width: 52px;
-    height: 52px;
-    background: linear-gradient(135deg, #25d366, #128c7e);
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    background: rgba(99, 102, 241, 0.12);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: var(--primary);
     flex-shrink: 0;
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
 }
 
 .wc-panel-header > div:nth-child(2) {
@@ -705,15 +797,27 @@ body {
 }
 
 .wc-panel-header h3 {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 600;
-    color: #fff;
-    margin-bottom: 4px;
+    color: var(--text-main);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
 }
 
-.wc-panel-header p {
-    font-size: 0.85rem;
+.wc-lead {
+    font-size: 0.84rem;
     color: var(--text-muted);
+    line-height: 1.5;
+    max-width: 36rem;
+}
+
+.wc-field-group {
+    margin-bottom: 0;
+}
+
+.wc-req {
+    color: var(--primary);
+    font-weight: 600;
 }
 
 .wc-status-badge {
@@ -810,8 +914,22 @@ body {
 
 .wc-input-wrap input:focus {
     outline: none;
-    border-color: #25d366;
-    box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+    border-color: rgba(99, 102, 241, 0.55);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.wc-footnote {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--surface-border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.wc-footnote strong {
+    color: var(--text-main);
+    font-weight: 600;
 }
 
 .wc-eye-btn {
@@ -865,27 +983,34 @@ body {
     color: var(--danger);
 }
 
+.wc-result-meta {
+    display: inline-block;
+    margin-top: 6px;
+    color: var(--text-muted);
+    line-height: 1.45;
+}
+
 .btn-connect-now {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 14px 28px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #25d366, #128c7e);
+    padding: 12px 22px;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), #4f46e5);
     color: white;
     font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 0.92rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+    transition: var(--transition);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.22);
     white-space: nowrap;
 }
 
 .btn-connect-now:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
 }
 
 .btn-connect-now:active {

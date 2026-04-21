@@ -5,7 +5,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const p = document.getElementById('password').value;
 
     alertBox.className = 'alert-message';
-    alertBox.innerText = 'Autenticando...';
+    alertBox.innerText = 'Validando credenciales…';
     alertBox.style.display = 'block';
 
     try {
@@ -20,16 +20,16 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         if (result.success) {
             localStorage.setItem('quantum_token', result.token);
             alertBox.classList.add('alert-success');
-            alertBox.innerText = 'Acceso Concedido';
+            alertBox.innerText = 'Acceso autorizado';
             setTimeout(() => {
                 window.location.href = '/index.html';
             }, 500);
         } else {
             alertBox.classList.add('alert-error');
-            alertBox.innerText = result.message || 'Credenciales Inválidas';
+            alertBox.innerText = result.message || 'Credenciales incorrectas';
         }
     } catch (err) {
         alertBox.classList.add('alert-error');
-        alertBox.innerText = 'Error de conexión';
+        alertBox.innerText = 'No se pudo contactar al servidor';
     }
 });

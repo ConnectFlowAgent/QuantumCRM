@@ -1,6 +1,8 @@
 const axios = require('axios');
 const db = require('../config/db');
 
+const GRAPH_API_VERSION = 'v19.0';
+
 /**
  * Enviar mensaje de texto usando la API Oficial de WhatsApp Cloud
  */
@@ -13,7 +15,7 @@ const sendWhatsAppMessage = async (to, text) => {
         const PHONE_NUMBER_ID = phoneRes.rows.length > 0 ? phoneRes.rows[0].value : process.env.PHONE_NUMBER_ID;
         const ACCESS_TOKEN = tokenRes.rows.length > 0 ? tokenRes.rows[0].value : process.env.WHATSAPP_ACCESS_TOKEN;
         
-        const WHATSAPP_API_URL = `https://graph.facebook.com/v17.0/${PHONE_NUMBER_ID}/messages`;
+        const WHATSAPP_API_URL = `https://graph.facebook.com/${GRAPH_API_VERSION}/${PHONE_NUMBER_ID}/messages`;
 
         const response = await axios.post(
             WHATSAPP_API_URL,
@@ -72,7 +74,7 @@ const sendMetaTemplate = async (to, templateName, languageCode = "es", bodyVaria
             return;
         }
 
-        const url = `https://graph.facebook.com/v17.0/${creds.phone_number_id}/messages`;
+        const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${creds.phone_number_id}/messages`;
         
         // Mapeo dinámico de las variables del array as componentes de texto
         const parameters = bodyVariables.map(val => ({
