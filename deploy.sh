@@ -7,7 +7,7 @@
 #    ./deploy.sh              → deploy inteligente (detecta si hay cambios en deps)
 #    ./deploy.sh --pull       → git pull + redeploy automático
 #    ./deploy.sh --full       → reconstruir imagen completa (docker-compose up --build)
-#    ./deploy.sh --hot        → solo copia archivos y reinicia el proceso Node (sin rebuild)
+#    ./deploy.sh --hot        → para app, copia código y stop/start del servicio (sin rebuild)
 #    ./deploy.sh --status     → muestra el estado de los contenedores
 #    ./deploy.sh --logs       → sigue los logs del servicio app en vivo
 #    ./deploy.sh --stop       → detiene todos los contenedores
@@ -48,15 +48,25 @@ check_docker() {
     fi
 }
 
-# ── Obtener el ID del contenedor app ──────────────────────────────────────────
+# ── Raíz del proyecto (el script debe poder ejecutarse desde cualquier cwd) ───
+script_dir() {
+    cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd
+}
+
+# ── Docker Compose (fija el compose para no depender del cwd previo) ─────────
+dc() {
+    docker compose -f "$COMPOSE_FILE" "$@"
+}
+
+# ── Obtener el ID del contenedor app (solo en ejecución) ─────────────────────
 get_container_id() {
-    docker compose ps -q "$APP_SERVICE" 2>/dev/null
+    dc ps -q "$APP_SERVICE" 2>/dev/null
 }
 
 # ── Modo: Status ──────────────────────────────────────────────────────────────
 cmd_status() {
     title "Estado de los Contenedores"
-    docker compose ps
+    dc ps
     echo ""
     CONTAINER=$(get_container_id)
     if [ -n "$CONTAINER" ]; then
@@ -74,13 +84,13 @@ cmd_logs() {
     title "Logs en Vivo — QuantumCRM"
     log "Presiona Ctrl+C para salir"
     echo ""
-    docker compose logs -f --tail=100 "$APP_SERVICE"
+    dc logs -f --tail=100 "$APP_SERVICE"
 }
 
 # ── Modo: Stop ────────────────────────────────────────────────────────────────
 cmd_stop() {
     title "Deteniendo Contenedores"
-    docker compose stop
+    dc stop
     ok "Todos los contenedores detenidos."
 }
 
@@ -93,8 +103,8 @@ cmd_full_rebuild() {
     START_TIME=$(date +%s)
 
     # Forzar rebuild sin cache para garantizar que los archivos locales entren frescos
-    docker compose build --no-cache "$APP_SERVICE"
-    docker compose up -d --no-deps "$APP_SERVICE"
+    dc build --no-cache "$APP_SERVICE"
+    dc up -d --no-deps "$APP_SERVICE"
 
     END_TIME=$(date +%s)
     ELAPSED=$((END_TIME - START_TIME))
@@ -104,7 +114,7 @@ cmd_full_rebuild() {
     log "Siguiendo logs (Ctrl+C para salir):"
     echo ""
     sleep 1
-    docker compose logs -f --tail=30 "$APP_SERVICE"
+    dc logs -f --tail=30 "$APP_SERVICE"
 }
 
 # ── Modo: Hot Reload (sin rebuild) ────────────────────────────────────────────
@@ -113,8 +123,8 @@ cmd_hot_reload() {
 
     CONTAINER=$(get_container_id)
     if [ -z "$CONTAINER" ]; then
-        warn "El contenedor 'app' no está corriendo. Levantando con docker compose up..."
-        docker compose up -d
+        warn "El contenedor 'app' no está corriendo. Levantando el stack con docker compose up..."
+        dc up -d
         sleep 2
         CONTAINER=$(get_container_id)
     fi
@@ -127,15 +137,13 @@ cmd_hot_reload() {
     log "Contenedor activo: ${CONTAINER:0:12}"
     echo ""
 
-    # ── PASO 1: Parar el servicio app (evita carrera con restart de Docker) ─────
-    # Matar solo "node app.js" (a menudo PID 1) hace que el contenedor caiga y Docker
-    # lo reinicie al instante; el nuevo Node vuelve a abrir app.js y entonces
-    # `mv app.js.deploy_tmp app.js` falla con "Resource busy" / texto en ejecución.
+    # ── PASO 1: Parar solo el servicio app (Postgres/Redis siguen arriba) ───────
+    # Así no hay proceso con app.js abierto como ejecutable (evita ETXTBSY / "busy").
     log "Deteniendo servicio ${YELLOW}$APP_SERVICE${NC} para copiar archivos con seguridad..."
-    docker compose stop "$APP_SERVICE"
+    dc stop "$APP_SERVICE"
     sleep 1
-    # No volver a llamar get_container_id aquí: `docker compose ps -q` solo lista
-    # contenedores en ejecución; tras `stop` devolvería vacío. El mismo ID sigue válido.
+    # No volver a llamar get_container_id aquí: `dc ps -q` solo lista contenedores
+    # en ejecución; tras `stop` devolvería vacío. El mismo ID de antes sigue válido.
     echo "  → Contenedor detenido (archivos listos para actualizar)."
     echo ""
 
@@ -162,14 +170,14 @@ cmd_hot_reload() {
     # ── PASO 4: Arrancar de nuevo (mismo contenedor, código nuevo) ───────────────
     echo ""
     log "Iniciando servicio ${YELLOW}$APP_SERVICE${NC}..."
-    docker compose start "$APP_SERVICE"
+    dc start "$APP_SERVICE"
 
     echo ""
     ok "Hot deploy completado."
     log "Siguiendo logs (Ctrl+C para salir):"
     echo ""
     sleep 1
-    docker compose logs -f --tail=30 "$APP_SERVICE"
+    dc logs -f --tail=30 "$APP_SERVICE"
 }
 
 # ── Modo: Pull desde Git + Redeploy ──────────────────────────────────────────
@@ -302,7 +310,7 @@ cmd_help() {
     echo ""
     echo -e "  ${CYAN}./deploy.sh${NC}           Detección automática (hot o rebuild)"
     echo -e "  ${CYAN}./deploy.sh --pull${NC}    Actualiza desde GitHub y redespliega"
-    echo -e "  ${CYAN}./deploy.sh --hot${NC}     Copia archivos y reinicia Node (rápido, sin rebuild)"
+    echo -e "  ${CYAN}./deploy.sh --hot${NC}     Copia código al contenedor app y stop/start (sin rebuild)"
     echo -e "  ${CYAN}./deploy.sh --full${NC}    Reconstruye imagen completa (lento, necesario si cambia package.json)"
     echo -e "  ${CYAN}./deploy.sh --status${NC}  Estado y recursos de los contenedores"
     echo -e "  ${CYAN}./deploy.sh --logs${NC}    Sigue los logs del servicio app en tiempo real"
@@ -318,6 +326,11 @@ cmd_help() {
 
 # ── Entry Point ───────────────────────────────────────────────────────────────
 check_docker
+
+cd "$(script_dir)" || {
+    error "No se pudo situar en el directorio del proyecto."
+    exit 1
+}
 
 case "${1:-}" in
     --pull)    cmd_pull ;;
