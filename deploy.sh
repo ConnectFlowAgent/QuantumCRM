@@ -93,7 +93,7 @@ cmd_full_rebuild() {
     START_TIME=$(date +%s)
 
     # Forzar rebuild sin cache para garantizar que los archivos locales entren frescos
-    docker compose build --no-cache --no-deps "$APP_SERVICE"
+    docker compose build --no-cache "$APP_SERVICE"
     docker compose up -d --no-deps "$APP_SERVICE"
 
     END_TIME=$(date +%s)
