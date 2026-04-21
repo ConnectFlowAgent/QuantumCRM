@@ -377,4 +377,89 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Opcional: Refresco de métricas cada 30 seg
     setInterval(loadDashboardMetrics, 30000);
+
+    // --- WhatsApp Connect Panel ---
+
+    // Helper: actualiza el badge de estado del panel
+    const setWCStatus = (state, label) => {
+        const badge = document.getElementById('wc-status-badge');
+        const dot = document.getElementById('wc-status-dot');
+        const labelEl = document.getElementById('wc-status-label');
+        badge.className = 'wc-status-badge';
+        if (state) badge.classList.add(`status-${state}`);
+        if (labelEl) labelEl.textContent = label;
+    };
+
+    // Toggle visibilidad del token
+    window.toggleVisibility = (inputId, btnId) => {
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+        } else {
+            input.type = 'password';
+            btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        }
+    };
+
+    // Función principal: probar conexión WhatsApp
+    window.testWhatsAppConnection = async () => {
+        const accessToken = document.getElementById('wc-access-token').value.trim();
+        const phoneId = document.getElementById('wc-phone-id').value.trim();
+        const btn = document.getElementById('btn-connect-now');
+        const resultBox = document.getElementById('wc-result-box');
+
+        if (!accessToken || !phoneId) {
+            resultBox.className = 'wc-result-box result-err';
+            resultBox.style.display = 'block';
+            resultBox.textContent = '⚠️ Ingresa el Access Token y el Phone Number ID antes de conectar.';
+            setWCStatus('failed', 'Datos incompletos');
+            return;
+        }
+
+        // Estado: verificando
+        btn.disabled = true;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Verificando...`;
+        setWCStatus('checking', 'Verificando...');
+        resultBox.className = 'wc-result-box';
+        resultBox.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/whatsapp/test-connection', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone_number_id: phoneId, access_token: accessToken })
+            });
+            const data = await res.json();
+
+            resultBox.style.display = 'block';
+            if (data.success) {
+                setWCStatus('connected', '● Conectado');
+                resultBox.className = 'wc-result-box result-ok';
+                const d = data.details;
+                resultBox.innerHTML = `
+                    <strong>${data.message}</strong><br>
+                    <small>📞 Número: <b>${d.phone}</b> &nbsp;|&nbsp; 🏷️ Nombre: <b>${d.name}</b> &nbsp;|&nbsp; ⭐ Calidad: <b>${d.quality}</b></small>
+                `;
+                // Auto-rellenar los campos del formulario de configuración
+                document.getElementById('cfg-access-token').value = accessToken;
+                document.getElementById('cfg-phone-id').value = phoneId;
+            } else {
+                setWCStatus('failed', '✕ Error');
+                resultBox.className = 'wc-result-box result-err';
+                resultBox.textContent = data.message;
+            }
+        } catch (err) {
+            setWCStatus('failed', '✕ Sin conexión');
+            resultBox.className = 'wc-result-box result-err';
+            resultBox.style.display = 'block';
+            resultBox.textContent = '❌ Error de red. ¿Está el servidor corriendo?';
+        }
+
+        // Restaurar botón
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Conectar Ahora`;
+    };
 });

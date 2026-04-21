@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
+const https = require('https');
 
 // GET /api/leads - Trae todos los contactos con su status
 router.get('/leads', async (req, res) => {
@@ -125,6 +126,54 @@ router.get('/logs', async (req, res) => {
     } catch (err) {
         console.error("Error obteniendo logs de redis:", err);
         res.status(500).json({ success: false, error: 'Database fail' });
+    }
+});
+
+// POST /api/whatsapp/test-connection - Prueba las credenciales contra la Graph API de Meta
+router.post('/whatsapp/test-connection', async (req, res) => {
+    const { phone_number_id, access_token } = req.body;
+
+    if (!phone_number_id || !access_token) {
+        return res.status(400).json({
+            success: false,
+            status: 'error',
+            message: 'Se requiere Phone Number ID y Access Token para verificar.'
+        });
+    }
+
+    try {
+        // Llamar a la Graph API de Meta para verificar el Phone Number ID
+        const apiUrl = `https://graph.facebook.com/v19.0/${phone_number_id}?fields=display_phone_number,verified_name,quality_rating&access_token=${access_token}`;
+        
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (response.ok && data.display_phone_number) {
+            res.json({
+                success: true,
+                status: 'connected',
+                message: `✅ Conectado correctamente`,
+                details: {
+                    phone: data.display_phone_number,
+                    name: data.verified_name || 'N/A',
+                    quality: data.quality_rating || 'N/A'
+                }
+            });
+        } else {
+            const errMsg = data.error ? data.error.message : 'Credenciales inválidas o sin permisos.';
+            res.json({
+                success: false,
+                status: 'failed',
+                message: `❌ Error: ${errMsg}`
+            });
+        }
+    } catch (error) {
+        console.error('[WhatsApp] Error verificando conexión:', error);
+        res.status(500).json({
+            success: false,
+            status: 'error',
+            message: 'No se pudo contactar a la API de Meta. Revisa tu conexión a internet.'
+        });
     }
 });
 

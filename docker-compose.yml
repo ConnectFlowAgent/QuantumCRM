@@ -13,9 +13,23 @@ services:
       - PG_PASSWORD=postgres_password
       - PG_PORT=5432
       - REDIS_URL=redis://redis_cache:6379
+    # ── Volumen de código para desarrollo (hot changes sin rebuild) ──────────
+    # Los archivos del host se montan directamente en el contenedor.
+    # Elimina este bloque 'volumes' en producción real.
+    volumes:
+      - ./app.js:/usr/src/app/app.js
+      - ./routes:/usr/src/app/routes
+      - ./services:/usr/src/app/services
+      - ./middlewares:/usr/src/app/middlewares
+      - ./config:/usr/src/app/config
+      - ./public:/usr/src/app/public
+      - ./update_db.js:/usr/src/app/update_db.js
+      # node_modules se excluye del mount para no sobreescribir lo instalado
+      - /usr/src/app/node_modules
     depends_on:
       - postgres_db
       - redis_cache
+    restart: unless-stopped
 
   postgres_db:
     image: postgres:15-alpine
